@@ -1,15 +1,16 @@
 import psycopg2
 import sys
+import re
 
 conn = psycopg2.connect(database="tcount", user="postgres", password="pass", host="localhost", port="5432")
 cur = conn.cursor()
 
 if len(sys.argv) > 1:
     word = sys.argv[1]
-    statement = "SELECT count FROM tweetwordcount WHERE word='%s'" % word
-    cur.execute(statement)
+    SQLstatement = "SELECT count FROM tweetwordcount WHERE word='%s'" % word
+    cur.execute(SQLstatement)
     records = cur.fetchall()
-    records = list(set(records))   # consider for repeating records
+    records = list(set(records))   # removing duplicate
     try:
         print "Total number of occurences of " + word + ": " + str(records[0][0])
     except IndexError:
@@ -17,11 +18,10 @@ if len(sys.argv) > 1:
 else:
     cur.execute("SELECT * FROM tweetwordcount")
     records = cur.fetchall()
-    records = list(set(records)) # consider for repeating records
+    records = list(set(records)) #  removing duplicate
     records.sort()
-    col_width = max(len(str(item)) for record in records for item in record) + 1
-    for rec in records:
-       print "".join(str(item).ljust(col_width) for item in rec)
+    for item in records:
+        print(item)
 
 conn.commit()
 conn.close()
